@@ -1,5 +1,4 @@
 import { AbsPatchGenerator, css } from './PatchGenerator.base';
-import { ThemePatchGenerator } from './PatchGenerator.theme';
 
 export class FullscreenPatchGeneratorConfig {
     images = [] as string[];
@@ -13,7 +12,7 @@ export class FullscreenPatchGeneratorConfig {
 
 export class FullscreenPatchGenerator<T extends FullscreenPatchGeneratorConfig> extends AbsPatchGenerator<T> {
     /** 背景图挂载的选择器，子类覆盖 */
-    protected selector = 'body::after';
+    protected selector = "[id='workbench.parts.editor']::after";
 
     protected get curConfig(): T {
         const cur = {
@@ -22,7 +21,7 @@ export class FullscreenPatchGenerator<T extends FullscreenPatchGeneratorConfig> 
         };
 
         // ------ opacity ------
-        if (cur.opacity < 0 || cur.opacity > 0.6) {
+        if (cur.opacity < 0 || cur.opacity > 1) {
             cur.opacity = new FullscreenPatchGeneratorConfig().opacity;
         }
 
@@ -44,8 +43,12 @@ export class FullscreenPatchGenerator<T extends FullscreenPatchGeneratorConfig> 
                 background-repeat: no-repeat;
                 background-position: ${position};
                 opacity: ${opacity};
-                transition: 1s;
-                mix-blend-mode: var(${ThemePatchGenerator.cssMixBlendMode});
+                transition: none;
+                mix-blend-mode: normal;
+            }
+
+            [id='workbench.parts.editor']:has(.monaco-editor)::after {
+                opacity: 0;
             }
         `;
     }

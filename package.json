@@ -167,7 +167,7 @@
               "type": "number",
               "default": 0.1,
               "minimum": 0,
-              "maximum": 0.6,
+              "maximum": 1,
               "markdownDescription": "%extension.background.fullscreen.opacity%"
             },
             "size": {
