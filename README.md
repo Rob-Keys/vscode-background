@@ -1,7 +1,7 @@
 <!-- 中英文切换 -->
 <div align="right">
 
-**English** | [中文](./README.zh-CN.md) | [日本語](./README.ja-JP.md)
+**English**
 
 </div>
 <!-- 中英文切换 end -->
@@ -174,41 +174,15 @@ Click the 「Background」 button on the right-bottom of statusbar, all commands
 
 > **This extension works by editing the vscode's html file.**
 
-Please refer to the [Common Issues](docs/common-issues.md) if you met some problems.
+If VS Code updates or the extension stops applying backgrounds, run `Background: Enable and apply the background` again.
 
 ## Uninstall
 
-Please refer to [Common Issues#how-to-uninstall](docs/common-issues.md#how-to-uninstall).
-
-## Contributors 🙏
-
-[<img alt="shalldie" src="https://avatars3.githubusercontent.com/u/9987486?v=4" width="80">](https://github.com/shalldie)
-[<img alt="suiyun39" src="https://avatars.githubusercontent.com/u/20502666?v=4" width="80">](https://github.com/suiyun39)
-[<img alt="frg2089" src="https://avatars.githubusercontent.com/u/42184238?v=4" width="80">](https://github.com/frg2089)
-[<img alt="AzureeDev" src="https://avatars.githubusercontent.com/u/23083011?v=4" width="80">](https://github.com/AzureeDev)
-[<img alt="tumit" src="https://avatars.githubusercontent.com/u/1756190?v=4" width="80">](https://github.com/tumit)
-[<img alt="asurinsaka" src="https://avatars.githubusercontent.com/u/8145535?v=4" width="80">](https://github.com/asurinsaka)
-[<img alt="u3u" src="https://avatars.githubusercontent.com/u/20062482?v=4" width="80">](https://github.com/u3u)
-[<img alt="kuresaru" src="https://avatars.githubusercontent.com/u/31172177?v=4" width="80">](https://github.com/kuresaru)
-[<img alt="Unthrottled" src="https://avatars.githubusercontent.com/u/15972415?v=4" width="80">](https://github.com/Unthrottled)
-[<img alt="rogeraabbccdd" src="https://avatars.githubusercontent.com/u/15815422?v=4" width="80">](https://github.com/rogeraabbccdd)
-[<img alt="SatoMasahiro2005" src="https://avatars.githubusercontent.com/u/86603229?v=4" width="80">](https://github.com/SatoMasahiro2005)
-
-## Contributing Guide
-
-Refer to [Contributing Guide](docs/contributing.md).
-
-## Change Log
-
-You can checkout all our changes in our [CHANGELOG](https://github.com/shalldie/vscode-background/blob/master/CHANGELOG.md).
+Use `Background: Uninstall the extension` from the Command Palette, or uninstall it from Extensions.
 
 ## Share Your Images
 
 We share background images [here](https://github.com/shalldie/vscode-background/issues/106).
-
-## Migration from v1
-
-Starting from v3.0, v1 top-level configuration is no longer supported. Please refer to [migration-from-v1.md](docs/migration-from-v1.md) to migrate.
 
 ## LICENSE
 
