@@ -1,9 +1,7 @@
 import fs from 'node:fs';
-import path from 'node:path';
+import vscode, { type Disposable } from 'vscode';
 
-import vscode, { type Disposable, l10n } from 'vscode';
-
-import { ENCODING, EXT_ROOT, EXTENSION_NAME, TOUCH_FILE_PATH, VERSION } from '../utils/constants';
+import { ENCODING, EXTENSION_NAME, TOUCH_FILE_PATH, VERSION } from '../utils/constants';
 import { getLegacyJsPath, getWorkbenchHtmlPath } from '../utils/patchTargets';
 import { vsHelp } from '../utils/vsHelp';
 import { EFilePatchType, HtmlPatchFile, JsPatchFile } from './PatchFile';
@@ -83,28 +81,14 @@ export class Background implements Disposable {
     }
 
     public async showWelcome() {
-        // 欢迎页
-        const docDir = path.join(EXT_ROOT, 'docs');
-        const docName = vscode.env.language.startsWith('zh') ? 'welcome.zh-CN.md' : 'welcome.md';
+        const content = `# vscode-background
 
-        // welcome 内容
-        let content = await fs.promises.readFile(path.join(docDir, docName), ENCODING);
-        // 替换图片内联为base64
-        content = content.replace(/\.\.\/images[^")]+/g, (relativePath: string) => {
-            const imgPath = path.join(EXT_ROOT, 'images', relativePath);
+Welcome to background@${VERSION}.
 
-            return (
-                `data:image/${path.extname(imgPath).slice(1) || 'png'};base64,` +
-                Buffer.from(fs.readFileSync(imgPath)).toString('base64')
-            );
-        });
-        // 替换变量
-        const paramsMap = {
-            VERSION
-        };
-        for (const [key, value] of Object.entries(paramsMap)) {
-            content = content.replaceAll('${' + key + '}', value);
-        }
+Configure images in the \`background.editor\`, \`background.fullscreen\`, \`background.sidebar\`, \`background.auxiliarybar\`, and \`background.panel\` settings. Local files, folders, HTTPS URLs, and data URLs are supported.
+
+Run \`Background: Enable and apply the background\` after changing settings. See the README for the complete configuration reference.
+`;
         vsHelp.showMarkdown(content, 'welcome');
     }
 
@@ -123,8 +107,8 @@ export class Background implements Disposable {
         if (!enabled) {
             if (hasInstalled) {
                 vsHelp.reload({
-                    message: l10n.t('Background will be disabled.'),
-                    btnReload: l10n.t('Disable and Reload'),
+                    message: 'Background will be disabled.',
+                    btnReload: 'Disable and Reload',
                     beforeReload: () => this.uninstall()
                 });
             }
@@ -133,8 +117,8 @@ export class Background implements Disposable {
 
         // 更新，需要二次确认
         vsHelp.reload({
-            message: l10n.t('Configuration has been changed, click to apply.'),
-            btnReload: l10n.t('Apply and Reload'),
+            message: 'Configuration has been changed, click to apply.',
+            btnReload: 'Apply and Reload',
             beforeReload: () => this.applyPatch()
         });
     }
@@ -176,9 +160,9 @@ export class Background implements Disposable {
             // 提示
             vscode.window
                 .showInformationMessage(
-                    l10n.t('Background@{version} is ready! Apply to take effect.', { version: VERSION }),
+                    `Background@${VERSION} is ready! Apply to take effect.`,
                     {
-                        title: l10n.t('Apply and Reload'),
+                        title: 'Apply and Reload',
                         action: async () => {
                             const patchApplied = await this.applyPatch();
                             if (patchApplied !== false) {
@@ -187,7 +171,7 @@ export class Background implements Disposable {
                         }
                     },
                     {
-                        title: l10n.t('More'),
+                        title: 'More',
                         action: () => this.showWelcome()
                     }
                 )

@@ -104,7 +104,7 @@ export abstract class AbsPatchFile {
                         return;
                     }
                     const helpLink =
-                        'https://github.com/shalldie/vscode-background/blob/master/docs/common-issues.md#read-only-file-system';
+                        'https://github.com/shalldie/vscode-background/issues';
 
                     vsc!.env!.openExternal(vsc!.Uri.parse(helpLink));
                 });

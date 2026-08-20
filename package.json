@@ -42,28 +42,27 @@
     "esbuild": "^0.28.1",
     "typescript": "^6.0.3"
   },
-  "l10n": "./l10n",
   "contributes": {
     "commands": [
       {
         "command": "extension.background.info",
         "category": "Background",
-        "title": "%extension.background.command.info.title%"
+        "title": "Welcome to background."
       },
       {
         "command": "extension.background.install",
         "category": "Background",
-        "title": "%extension.background.command.install.title%"
+        "title": "Enable and apply the background."
       },
       {
         "command": "extension.background.disable",
         "category": "Background",
-        "title": "%extension.background.command.disable.title%"
+        "title": "Disable the background."
       },
       {
         "command": "extension.background.uninstall",
         "category": "Background",
-        "title": "%extension.background.command.uninstall.title%"
+        "title": "Uninstall the extension."
       },
       {
         "command": "extension.background.previewPatch",
@@ -78,7 +77,7 @@
         "background.enabled": {
           "type": "boolean",
           "default": true,
-          "markdownDescription": "%extension.background.enabled.description%"
+          "markdownDescription": "Whether to enable background extension."
         },
         "background.editor": {
           "type": "object",
@@ -98,7 +97,7 @@
             "useFront": {
               "type": "boolean",
               "default": true,
-              "markdownDescription": "%extension.background.editor.useFront%"
+              "markdownDescription": "Place the image above or below the code."
             },
             "style": {
               "type": "object",
@@ -107,12 +106,12 @@
                 "background-size": "auto",
                 "opacity": 0.6
               },
-              "markdownDescription": "%extension.background.editor.style%"
+              "markdownDescription": "Custom style for images. [MDN Reference](https://developer.mozilla.org/docs/Web/CSS)"
             },
             "styles": {
               "type": "array",
               "default": [],
-              "markdownDescription": "%extension.background.editor.styles%"
+              "markdownDescription": "Custom style for each image individually. [MDN Reference](https://developer.mozilla.org/docs/Web/CSS)"
             },
             "images": {
               "type": "array",
@@ -120,20 +119,20 @@
               "items": {
                 "type": "string"
               },
-              "markdownDescription": "%extension.background.editor.images%"
+              "markdownDescription": "Custom images, including online URLs, local files, and folders."
             },
             "interval": {
               "type": "number",
               "default": 0,
-              "markdownDescription": "%extension.background.editor.interval%"
+              "markdownDescription": "Seconds between carousel images; 0 disables the carousel."
             },
             "random": {
               "type": "boolean",
               "default": false,
-              "markdownDescription": "%extension.background.editor.random%"
+              "markdownDescription": "Whether to randomly display images."
             }
           },
-          "markdownDescription": "%extension.background.editor.description%"
+          "markdownDescription": "Editor section config."
         },
         "background.fullscreen": {
           "type": "object",
@@ -153,42 +152,42 @@
               "items": {
                 "type": "string"
               },
-              "markdownDescription": "%extension.background.editor.images%"
+              "markdownDescription": "Custom images, including online URLs, local files, and folders."
             },
             "opacity": {
               "type": "number",
               "default": 0.1,
               "minimum": 0,
               "maximum": 1,
-              "markdownDescription": "%extension.background.fullscreen.opacity%"
+              "markdownDescription": "Opacity of the images, from 0 to 1."
             },
             "size": {
               "type": "string",
               "default": "cover",
-              "markdownDescription": "%extension.background.fullscreen.size%"
+              "markdownDescription": "Alias for CSS background-size."
             },
             "position": {
               "type": "string",
               "default": "center",
-              "markdownDescription": "%extension.background.fullscreen.position%"
+              "markdownDescription": "Alias for CSS background-position."
             },
             "styles": {
               "type": "array",
               "default": [],
-              "markdownDescription": "%extension.background.editor.styles%"
+              "markdownDescription": "Custom style for each image individually."
             },
             "interval": {
               "type": "number",
               "default": 0,
-              "markdownDescription": "%extension.background.fullscreen.interval%"
+              "markdownDescription": "Seconds between carousel images; 0 disables the carousel."
             },
             "random": {
               "type": "boolean",
               "default": false,
-              "markdownDescription": "%extension.background.fullscreen.random%"
+              "markdownDescription": "Whether to randomly display images."
             }
           },
-          "markdownDescription": "%extension.background.fullscreen.description%"
+          "markdownDescription": "Fullscreen section config."
         },
         "background.sidebar": {
           "type": "object",
@@ -224,7 +223,7 @@
               "$ref": "#/properties/background.fullscreen/properties/random"
             }
           },
-          "markdownDescription": "%extension.background.sidebar.description%"
+          "markdownDescription": "Sidebar section config."
         },
         "background.auxiliarybar": {
           "type": "object",
@@ -260,7 +259,7 @@
               "$ref": "#/properties/background.fullscreen/properties/random"
             }
           },
-          "markdownDescription": "%extension.background.auxiliarybar.description%"
+          "markdownDescription": "Auxiliarybar section config."
         },
         "background.panel": {
           "type": "object",
@@ -296,7 +295,7 @@
               "$ref": "#/properties/background.fullscreen/properties/random"
             }
           },
-          "markdownDescription": "%extension.background.panel.description%"
+          "markdownDescription": "Panel section config."
         }
       }
     }

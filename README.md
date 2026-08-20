@@ -26,11 +26,7 @@
 
 Multiple sections, `editor`, `sidebar`, `auxiliarybar`, `panel`
 
-<img width="760" src="./images/section.webp">
-
 `fullscreen`
-
-<img width="760" src="./images/fullscreen.webp">
 
 </div>
 
@@ -52,8 +48,6 @@ User defined requirements can be met by changing the configuration(`settings.jso
 [what's `settings.json`](https://code.visualstudio.com/docs/getstarted/settings#_settingsjson) | [where?](https://github.com/shalldie/vscode-background/issues/274)
 
 ## Config
-
-<img width="760" src="./images/containers.webp">
 
 ### Global Config
 
@@ -167,8 +161,6 @@ example:
 ## Quick Command
 
 Click the 「Background」 button on the right-bottom of statusbar, all commands of `background` will appear:
-
-<img width="660" src="./images/commands.webp">
 
 ## Common Issues
 

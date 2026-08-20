@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
-import vscode, { l10n, Uri } from 'vscode';
+import vscode, { Uri } from 'vscode';
 
 import { ENCODING } from './constants';
 
@@ -10,7 +10,7 @@ class ReloadOptions {
     /** reload 提示内容 */
     message = '';
     /** reload 按钮文案 */
-    btnReload = l10n.t('Reload vscode');
+    btnReload = 'Reload vscode';
     /** reload 前置动作，返回 false 可中断重启 */
     beforeReload?: () => Promise<boolean | void>;
 }
