@@ -1,7 +1,7 @@
 {
   "name": "background",
   "displayName": "background",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Bring background images to your vscode",
   "categories": [
     "Other"
@@ -13,14 +13,14 @@
     "theme",
     "wallpaper"
   ],
-  "homepage": "https://github.com/shalldie/vscode-background#readme",
+  "homepage": "https://github.com/Rob-Keys/vscode-background#readme",
   "license": "MIT",
   "author": "shalldie",
   "repository": {
     "type": "git",
-    "url": "https://github.com/shalldie/vscode-background.git"
+    "url": "https://github.com/Rob-Keys/vscode-background.git"
   },
-  "publisher": "shalldie",
+  "publisher": "RobKeys",
   "main": "./dist/extension",
   "scripts": {
     "build": "tsc --noEmit && node esbuild.mjs",
