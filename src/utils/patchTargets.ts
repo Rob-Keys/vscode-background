@@ -1,7 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { _ } from './index';
 import { vsc } from './vsc';
 
 // VS Code 安装根目录
@@ -10,25 +9,10 @@ import { vsc } from './vsc';
 const appRoot = vsc?.env.appRoot ?? '';
 
 /**
- * legacy js 文件地址（v2.1 之前 patch 注入到 JS 文件，现已迁移到 HTML）
- */
-export function getLegacyJsPath() {
-    // desktop
-    // /Applications/Visual Studio Code.app/Contents/Resources/app/out/vs/workbench/workbench.desktop.main.js
-    if (_.isDesktop) {
-        return path.join(appRoot, 'out/vs/workbench/workbench.desktop.main.js');
-    }
-
-    // code-server
-    // /usr/lib/code-server/lib/vscode/out/vs/code/browser/workbench/workbench.js
-    return path.join(appRoot, 'out/vs/code/browser/workbench/workbench.js');
-}
-
-/**
  * workbench.html 文件路径
  */
 export function getWorkbenchHtmlPath() {
-    if (_.isDesktop) {
+    if (vsc?.env.appHost === 'desktop') {
         // vscode
         const browserPath = path.join(appRoot, 'out/vs/code/electron-browser/workbench/workbench.html');
         // some version of Cursor use electron-sandbox

@@ -1,113 +1,33 @@
 import fs from 'node:fs';
 import vscode, { type Disposable } from 'vscode';
 
-import { ENCODING, EXTENSION_NAME, TOUCH_FILE_PATH, VERSION } from '../utils/constants';
-import { getLegacyJsPath, getWorkbenchHtmlPath } from '../utils/patchTargets';
+import { ENCODING, EXTENSION_NAME, VERSION, WORKBENCH_PATH_FILE } from '../utils/constants';
+import { getWorkbenchHtmlPath } from '../utils/patchTargets';
 import { vsHelp } from '../utils/vsHelp';
-import { EFilePatchType, HtmlPatchFile, JsPatchFile } from './PatchFile';
-import { PatchGenerator, type TPatchGeneratorConfig } from './PatchGenerator';
+import { WorkbenchPatch } from './WorkbenchPatch';
+import { createPatch, type BackgroundConfig } from './PatchGenerator';
 
-/**
- * 配置类型
- */
-type TConfigType = vscode.WorkspaceConfiguration & TPatchGeneratorConfig;
+type BackgroundSettings = vscode.WorkspaceConfiguration & BackgroundConfig & { enabled: boolean };
 
-/**
- * 插件逻辑类
- * Extension logic
- *
- * @export
- * @class Background
- */
 export class Background implements Disposable {
-    // #region fields 字段
+    private readonly workbenchFile = new WorkbenchPatch(getWorkbenchHtmlPath());
+    private configurationListener?: Disposable;
 
-    public htmlFile = new HtmlPatchFile(getWorkbenchHtmlPath());
-
-    private legacyJsFile = new JsPatchFile(getLegacyJsPath());
-
-    /**
-     * Current config
-     * 当前用户配置
-     *
-     * @private
-     * @type {TConfigType}
-     * @memberof Background
-     */
-    public get config() {
-        return vscode.workspace.getConfiguration('background') as TConfigType;
+    public get config(): BackgroundSettings {
+        return vscode.workspace.getConfiguration('background') as BackgroundSettings;
     }
 
-    /**
-     * 需要释放的资源
-     *
-     * @private
-     * @type {Disposable[]}
-     * @memberof Background
-     */
-    private disposables: Disposable[] = [];
-
-    // #endregion
-
-    // #region private methods 私有方法
-
-    private async removeLegacyJsPatch() {
-        try {
-            const hasPatched = await this.legacyJsFile.hasPatched();
-            if (!hasPatched) {
-                return;
-            }
-
-            await this.legacyJsFile.restore();
-        } catch {}
-    }
-
-    /**
-     * 检测是否初次加载
-     *
-     * @private
-     * @returns {boolean} 是否初次加载
-     * @memberof Background
-     */
-    private async checkFirstload(): Promise<boolean> {
-        const firstLoad = !fs.existsSync(TOUCH_FILE_PATH);
-
-        if (firstLoad) {
-            await fs.promises.writeFile(TOUCH_FILE_PATH, this.htmlFile.filePath, ENCODING);
-            return true;
+    private async recordWorkbenchPath(): Promise<void> {
+        if (!fs.existsSync(WORKBENCH_PATH_FILE)) {
+            await fs.promises.writeFile(WORKBENCH_PATH_FILE, this.workbenchFile.filePath, ENCODING);
         }
-
-        return false;
     }
 
-    public async showWelcome() {
-        const content = `# vscode-background
-
-Welcome to background@${VERSION}.
-
-Configure images in the \`background.editor\`, \`background.fullscreen\`, \`background.sidebar\`, \`background.auxiliarybar\`, and \`background.panel\` settings. Local files, folders, HTTPS URLs, and data URLs are supported.
-
-Run \`Background: Enable and apply the background\` after changing settings. See the README for the complete configuration reference.
-`;
-        vsHelp.showMarkdown(content, 'welcome');
-    }
-
-    /**
-     * 配置改变，confirm 并提示应用&重启
-     *
-     * @private
-     * @return {*}
-     * @memberof Background
-     */
-    private async onConfigChange() {
-        const hasInstalled = await this.hasInstalled();
-        const enabled = this.config.enabled;
-
-        // 禁用
-        if (!enabled) {
-            if (hasInstalled) {
-                vsHelp.reload({
-                    message: 'Background will be disabled.',
+    private async onConfigurationChanged(): Promise<void> {
+        if (!this.config.enabled) {
+            if (await this.workbenchFile.hasPatched()) {
+                await vsHelp.reload({
+                    message: 'The background image will be disabled.',
                     btnReload: 'Disable and Reload',
                     beforeReload: () => this.uninstall()
                 });
@@ -115,113 +35,52 @@ Run \`Background: Enable and apply the background\` after changing settings. See
             return;
         }
 
-        // 更新，需要二次确认
-        vsHelp.reload({
-            message: 'Configuration has been changed, click to apply.',
+        await vsHelp.reload({
+            message: 'The background image settings changed.',
             btnReload: 'Apply and Reload',
             beforeReload: () => this.applyPatch()
         });
     }
 
-    public async applyPatch() {
+    public async setup(): Promise<void> {
+        await this.recordWorkbenchPath();
+
+        const hasCurrentPatch = await this.workbenchFile.hasCurrentPatch();
+        const hasImage = Boolean(this.config.image?.trim());
+        if (this.config.enabled && !hasCurrentPatch && hasImage) {
+            vscode.window
+                .showInformationMessage(`Background Image ${VERSION} is ready to apply.`, {
+                    title: 'Apply and Reload',
+                    action: async () => {
+                        if (await this.applyPatch()) {
+                            await vsHelp.reload();
+                        }
+                    }
+                })
+                .then(choice => choice?.action());
+        }
+
+        this.configurationListener = vscode.workspace.onDidChangeConfiguration(event => {
+            if (event.affectsConfiguration(EXTENSION_NAME)) {
+                void this.onConfigurationChanged();
+            }
+        });
+    }
+
+    public async applyPatch(): Promise<boolean> {
         if (!this.config.enabled) {
             return true;
         }
 
-        const scriptContent = await PatchGenerator.create(this.config);
-        return this.htmlFile.applyPatches(scriptContent);
+        const patch = createPatch(this.config);
+        return patch ? this.workbenchFile.apply(patch) : this.workbenchFile.restore();
     }
 
-    public async previewPatch() {
-        const scriptContent = await PatchGenerator.create(this.config);
-        vsHelp.showMarkdown('```ts\n' + scriptContent + '\n```', 'preview-patch');
-    }
-
-    // #endregion
-
-    // #region public methods
-
-    /**
-     * 初始化
-     *
-     * @memberof Background
-     */
-    public async setup(): Promise<void> {
-        await this.removeLegacyJsPatch();
-
-        await this.checkFirstload();
-
-        const patchType = await this.htmlFile.getPatchType();
-
-        // 如果「开启」状态，文件不是「latest」，则进行「提示更新」
-        // 此时一般为 「background更新」、「vscode更新」
-        const needApply = [EFilePatchType.Legacy, EFilePatchType.None].includes(patchType);
-        if (this.config.enabled && needApply) {
-            // 提示
-            vscode.window
-                .showInformationMessage(
-                    `Background@${VERSION} is ready! Apply to take effect.`,
-                    {
-                        title: 'Apply and Reload',
-                        action: async () => {
-                            const patchApplied = await this.applyPatch();
-                            if (patchApplied !== false) {
-                                await vsHelp.reload();
-                            }
-                        }
-                    },
-                    {
-                        title: 'More',
-                        action: () => this.showWelcome()
-                    }
-                )
-                .then(confirm => {
-                    confirm?.action();
-                });
-        }
-
-        // 监听文件改变
-        this.disposables.push(
-            vscode.workspace.onDidChangeConfiguration(async ex => {
-                const hasChanged = ex.affectsConfiguration(EXTENSION_NAME);
-                if (!hasChanged) {
-                    return;
-                }
-
-                this.onConfigChange();
-            })
-        );
-    }
-
-    /**
-     * 是否已安装
-     *
-     * @return {*}
-     * @memberof Background
-     */
-    public hasInstalled(): Promise<boolean> {
-        return this.htmlFile.hasPatched();
-    }
-
-    /**
-     * 卸载
-     *
-     * @return {*}  {Promise<boolean>} 是否成功卸载
-     * @memberof Background
-     */
     public async uninstall(): Promise<boolean> {
-        await this.removeLegacyJsPatch();
-        return this.htmlFile.restore();
+        return this.workbenchFile.restore();
     }
 
-    /**
-     * 释放资源
-     *
-     * @memberof Background
-     */
     public dispose(): void {
-        this.disposables.forEach(n => n.dispose());
+        this.configurationListener?.dispose();
     }
-
-    // #endregion
 }

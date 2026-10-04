@@ -1,25 +1,8 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import vscode from 'vscode';
 
-import { Background } from './background';
+import { Background } from './background/Background';
 import { EXTENSION_ID } from './utils/constants';
 import { vsHelp } from './utils/vsHelp';
-
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
-
-function getStatusbar() {
-    const item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
-
-    item.command = 'extension.background.showAllCommands';
-    item.name = 'Background';
-    item.text = '$(file-media) Background';
-    item.tooltip = new vscode.MarkdownString('Show `background` commands');
-    item.show();
-
-    return item;
-}
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
     const background = new Background();
@@ -28,51 +11,33 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     await background.setup();
 
     context.subscriptions.push(
-        vscode.commands.registerCommand('extension.background.info', function () {
-            background.showWelcome();
-        })
-    );
-
-    context.subscriptions.push(
         vscode.commands.registerCommand('extension.background.install', async () => {
+            const wasEnabled = background.config.enabled;
             await background.config.update('enabled', true, true);
-            await background.applyPatch();
-            await vsHelp.reload();
+            if (wasEnabled && (await background.applyPatch())) {
+                await vsHelp.reload();
+            }
         })
     );
 
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.background.disable', async () => {
+            const wasEnabled = background.config.enabled;
             await background.config.update('enabled', false, true);
-            await background.uninstall();
-            await vsHelp.reload();
+            if (!wasEnabled && (await background.uninstall())) {
+                await vsHelp.reload();
+            }
         })
     );
 
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.background.uninstall', async () => {
-            await background.uninstall();
+            if (!(await background.uninstall())) {
+                await vscode.window.showErrorMessage('Could not restore the VS Code workbench.');
+                return;
+            }
             await vscode.commands.executeCommand('workbench.extensions.uninstallExtension', EXTENSION_ID);
-            vsHelp.reload({
-                message: 'Background extension has been uninstalled. See you next time!'
-            });
+            await vsHelp.reload({ message: 'Background Image has been uninstalled.' });
         })
     );
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand('extension.background.previewPatch', async () => {
-            await background.previewPatch();
-        })
-    );
-
-    const statusbar = getStatusbar();
-    context.subscriptions.push(
-        vscode.commands.registerCommand(statusbar.command as string, async () => {
-            vscode.commands.executeCommand('workbench.action.quickOpen', '> background: ');
-        })
-    );
-    context.subscriptions.push(statusbar);
 }
-
-// this method is called when your extension is deactivated
-export function deactivate(): void {}

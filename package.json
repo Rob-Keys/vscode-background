@@ -1,21 +1,19 @@
 {
   "name": "background",
-  "displayName": "background",
-  "version": "3.0.2",
-  "description": "Bring background images to your vscode",
+  "displayName": "Background Image",
+  "version": "4.0.1",
+  "description": "Show one full-opacity image behind the VS Code workbench.",
   "categories": [
     "Other"
   ],
   "keywords": [
     "background",
     "background-image",
-    "customize",
-    "theme",
     "wallpaper"
   ],
   "homepage": "https://github.com/Rob-Keys/vscode-background#readme",
   "license": "MIT",
-  "author": "shalldie",
+  "author": "Rob Keys",
   "repository": {
     "type": "git",
     "url": "https://github.com/Rob-Keys/vscode-background.git"
@@ -29,14 +27,10 @@
     "vscode:uninstall": "node ./dist/uninstall"
   },
   "dependencies": {
-    "@vscode/sudo-prompt": "^9.3.2",
-    "fast-glob": "^3.3.3",
-    "stylis": "^4.4.0",
-    "terser": "^5.48.0"
+    "@vscode/sudo-prompt": "^9.3.2"
   },
   "devDependencies": {
     "@types/node": "^24.13.1",
-    "@types/stylis": "^4.2.7",
     "@types/vscode": "^1.120.0",
     "@vscode/vsce": "^3.9.2",
     "esbuild": "^0.28.1",
@@ -45,257 +39,34 @@
   "contributes": {
     "commands": [
       {
-        "command": "extension.background.info",
-        "category": "Background",
-        "title": "Welcome to background."
-      },
-      {
         "command": "extension.background.install",
         "category": "Background",
-        "title": "Enable and apply the background."
+        "title": "Enable and apply background image"
       },
       {
         "command": "extension.background.disable",
         "category": "Background",
-        "title": "Disable the background."
+        "title": "Disable background image"
       },
       {
         "command": "extension.background.uninstall",
         "category": "Background",
-        "title": "Uninstall the extension."
-      },
-      {
-        "command": "extension.background.previewPatch",
-        "category": "Background",
-        "title": "[Dev] Preview Patch"
+        "title": "Uninstall Background Image"
       }
     ],
     "configuration": {
       "type": "object",
-      "title": "background",
+      "title": "Background Image",
       "properties": {
         "background.enabled": {
           "type": "boolean",
           "default": true,
-          "markdownDescription": "Whether to enable background extension."
+          "markdownDescription": "Apply the background image to the VS Code workbench."
         },
-        "background.editor": {
-          "type": "object",
-          "default": {
-            "useFront": true,
-            "style": {
-              "background-position": "100% 100%",
-              "background-size": "auto",
-              "opacity": 0.6
-            },
-            "styles": [],
-            "images": [],
-            "interval": 0,
-            "random": false
-          },
-          "properties": {
-            "useFront": {
-              "type": "boolean",
-              "default": true,
-              "markdownDescription": "Place the image above or below the code."
-            },
-            "style": {
-              "type": "object",
-              "default": {
-                "background-position": "100% 100%",
-                "background-size": "auto",
-                "opacity": 0.6
-              },
-              "markdownDescription": "Custom style for images. [MDN Reference](https://developer.mozilla.org/docs/Web/CSS)"
-            },
-            "styles": {
-              "type": "array",
-              "default": [],
-              "markdownDescription": "Custom style for each image individually. [MDN Reference](https://developer.mozilla.org/docs/Web/CSS)"
-            },
-            "images": {
-              "type": "array",
-              "default": [],
-              "items": {
-                "type": "string"
-              },
-              "markdownDescription": "Custom images, including online URLs, local files, and folders."
-            },
-            "interval": {
-              "type": "number",
-              "default": 0,
-              "markdownDescription": "Seconds between carousel images; 0 disables the carousel."
-            },
-            "random": {
-              "type": "boolean",
-              "default": false,
-              "markdownDescription": "Whether to randomly display images."
-            }
-          },
-          "markdownDescription": "Editor section config."
-        },
-        "background.fullscreen": {
-          "type": "object",
-          "default": {
-            "images": [],
-            "opacity": 0.1,
-            "size": "cover",
-            "position": "center",
-            "styles": [],
-            "interval": 0,
-            "random": false
-          },
-          "properties": {
-            "images": {
-              "type": "array",
-              "default": [],
-              "items": {
-                "type": "string"
-              },
-              "markdownDescription": "Custom images, including online URLs, local files, and folders."
-            },
-            "opacity": {
-              "type": "number",
-              "default": 0.1,
-              "minimum": 0,
-              "maximum": 1,
-              "markdownDescription": "Opacity of the images, from 0 to 1."
-            },
-            "size": {
-              "type": "string",
-              "default": "cover",
-              "markdownDescription": "Alias for CSS background-size."
-            },
-            "position": {
-              "type": "string",
-              "default": "center",
-              "markdownDescription": "Alias for CSS background-position."
-            },
-            "styles": {
-              "type": "array",
-              "default": [],
-              "markdownDescription": "Custom style for each image individually."
-            },
-            "interval": {
-              "type": "number",
-              "default": 0,
-              "markdownDescription": "Seconds between carousel images; 0 disables the carousel."
-            },
-            "random": {
-              "type": "boolean",
-              "default": false,
-              "markdownDescription": "Whether to randomly display images."
-            }
-          },
-          "markdownDescription": "Fullscreen section config."
-        },
-        "background.sidebar": {
-          "type": "object",
-          "default": {
-            "images": [],
-            "opacity": 0.1,
-            "size": "cover",
-            "position": "center",
-            "styles": [],
-            "interval": 0,
-            "random": false
-          },
-          "properties": {
-            "images": {
-              "$ref": "#/properties/background.fullscreen/properties/images"
-            },
-            "opacity": {
-              "$ref": "#/properties/background.fullscreen/properties/opacity"
-            },
-            "size": {
-              "$ref": "#/properties/background.fullscreen/properties/size"
-            },
-            "position": {
-              "$ref": "#/properties/background.fullscreen/properties/position"
-            },
-            "styles": {
-              "$ref": "#/properties/background.fullscreen/properties/styles"
-            },
-            "interval": {
-              "$ref": "#/properties/background.fullscreen/properties/interval"
-            },
-            "random": {
-              "$ref": "#/properties/background.fullscreen/properties/random"
-            }
-          },
-          "markdownDescription": "Sidebar section config."
-        },
-        "background.auxiliarybar": {
-          "type": "object",
-          "default": {
-            "images": [],
-            "opacity": 0.1,
-            "size": "cover",
-            "position": "center",
-            "styles": [],
-            "interval": 0,
-            "random": false
-          },
-          "properties": {
-            "images": {
-              "$ref": "#/properties/background.fullscreen/properties/images"
-            },
-            "opacity": {
-              "$ref": "#/properties/background.fullscreen/properties/opacity"
-            },
-            "size": {
-              "$ref": "#/properties/background.fullscreen/properties/size"
-            },
-            "position": {
-              "$ref": "#/properties/background.fullscreen/properties/position"
-            },
-            "styles": {
-              "$ref": "#/properties/background.fullscreen/properties/styles"
-            },
-            "interval": {
-              "$ref": "#/properties/background.fullscreen/properties/interval"
-            },
-            "random": {
-              "$ref": "#/properties/background.fullscreen/properties/random"
-            }
-          },
-          "markdownDescription": "Auxiliarybar section config."
-        },
-        "background.panel": {
-          "type": "object",
-          "default": {
-            "images": [],
-            "opacity": 0.1,
-            "size": "cover",
-            "position": "center",
-            "styles": [],
-            "interval": 0,
-            "random": false
-          },
-          "properties": {
-            "images": {
-              "$ref": "#/properties/background.fullscreen/properties/images"
-            },
-            "opacity": {
-              "$ref": "#/properties/background.fullscreen/properties/opacity"
-            },
-            "size": {
-              "$ref": "#/properties/background.fullscreen/properties/size"
-            },
-            "position": {
-              "$ref": "#/properties/background.fullscreen/properties/position"
-            },
-            "styles": {
-              "$ref": "#/properties/background.fullscreen/properties/styles"
-            },
-            "interval": {
-              "$ref": "#/properties/background.fullscreen/properties/interval"
-            },
-            "random": {
-              "$ref": "#/properties/background.fullscreen/properties/random"
-            }
-          },
-          "markdownDescription": "Panel section config."
+        "background.image": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "One local image path or HTTPS URL. Leave empty to remove the image."
         }
       }
     }
