@@ -68,6 +68,10 @@ export function createPatch(config: BackgroundConfig): string {
         [id='workbench.parts.editor'] .monaco-editor-background {
             background-color: transparent !important;
         }
+
+        [id='workbench.parts.editor'] > .content {
+            background-color: transparent !important;
+        }
     `;
     const integrityWarningCss = integrityWarningTranslations
         .map(translation => `.notification-toast-container:has([aria-label*='${translation}']) { display: none; }`)

@@ -1,7 +1,7 @@
 {
   "name": "workbench-wallpaper",
   "displayName": "workbench-wallpaper",
-  "version": "4.0.5",
+  "version": "4.0.6",
   "description": "Show one full-opacity image behind the VS Code workbench.",
   "categories": [
     "Other"
