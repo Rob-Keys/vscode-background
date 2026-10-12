@@ -58,14 +58,14 @@ export function createPatch(config: BackgroundConfig): string {
     }
 
     const backgroundCss = `
-        #workbench.parts.editor {
+        [id='workbench.parts.editor'] {
             background-image: url(${JSON.stringify(image)});
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
         }
 
-        #workbench.parts.editor .monaco-editor-background {
+        [id='workbench.parts.editor'] .monaco-editor-background {
             background-color: transparent !important;
         }
     `;
