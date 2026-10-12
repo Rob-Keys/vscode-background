@@ -72,6 +72,10 @@ export function createPatch(config: BackgroundConfig): string {
         [id='workbench.parts.editor'] > .content {
             background-color: transparent !important;
         }
+
+        [id='workbench.parts.editor'] .content.empty .editor-group-watermark {
+            display: none !important;
+        }
     `;
     const integrityWarningCss = integrityWarningTranslations
         .map(translation => `.notification-toast-container:has([aria-label*='${translation}']) { display: none; }`)
