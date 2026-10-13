@@ -62,6 +62,7 @@ export function createPatch(config: BackgroundConfig): string {
             background-image: url(${JSON.stringify(image)});
             background-size: cover;
             background-position: center;
+            background-attachment: fixed;
             background-repeat: no-repeat;
         }
 
@@ -73,13 +74,64 @@ export function createPatch(config: BackgroundConfig): string {
             background-color: transparent !important;
         }
 
-        [id='workbench.parts.editor'] .content.empty .editor-group-watermark {
+        [id='workbench.parts.editor'] .editor-group-watermark,
+        [id='workbench.parts.editor'] .editor-group-watermark-wrapper {
             display: none !important;
         }
+
     `;
     const integrityWarningCss = integrityWarningTranslations
         .map(translation => `.notification-toast-container:has([aria-label*='${translation}']) { display: none; }`)
         .join('\n');
     const css = `${backgroundCss}\n${integrityWarningCss}`;
-    return `const style = document.createElement('style'); style.textContent = ${JSON.stringify(css)}; document.head.appendChild(style);`;
+    return `
+        const style = document.createElement('style');
+        style.textContent = ${JSON.stringify(css)};
+        document.head.appendChild(style);
+
+        // Some compatible editors render their empty-editor watermark in an
+        // open shadow root, where the stylesheet above cannot reach it.
+        // Hide only shadow-root hosts containing a centered list of actions
+        // and keyboard shortcuts inside the editor part.
+        const watchedRoots = new WeakSet();
+        let scanQueued = false;
+        const scanEditorOverlays = () => {
+            scanQueued = false;
+            const editor = document.getElementById('workbench.parts.editor');
+            if (!editor) return;
+            documentObserver.disconnect();
+
+            const roots = [editor];
+            while (roots.length) {
+                const root = roots.pop();
+                if (!watchedRoots.has(root)) {
+                    watchedRoots.add(root);
+                    new MutationObserver(queueEditorOverlayScan).observe(root, { childList: true, subtree: true });
+                }
+
+                for (const element of root.querySelectorAll('*')) {
+                    const shadowRoot = element.shadowRoot;
+                    if (!shadowRoot) continue;
+
+                    const actionList = [...shadowRoot.querySelectorAll('ul')].some(list => {
+                        const rows = [...list.querySelectorAll(':scope > li')];
+                        return rows.length >= 2 && rows.every(row => row.querySelector('ol > li'));
+                    });
+                    if (actionList) {
+                        element.style.setProperty('display', 'none', 'important');
+                    } else {
+                        roots.push(shadowRoot);
+                    }
+                }
+            }
+        };
+        const queueEditorOverlayScan = () => {
+            if (scanQueued) return;
+            scanQueued = true;
+            requestAnimationFrame(scanEditorOverlays);
+        };
+        const documentObserver = new MutationObserver(queueEditorOverlayScan);
+        documentObserver.observe(document.documentElement, { childList: true, subtree: true });
+        queueEditorOverlayScan();
+    `;
 }
